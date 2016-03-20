@@ -47,6 +47,10 @@ def options(opt):
     opt.add_option('--disable-shared', action='store_false', default=True,
                    dest='enable_shared', help='''Do not build shared library (enabled by default)''')
 
+    opt.add_option('--enable-logging', action='store_true',
+                   dest='enable_logging',
+                   help='''Enable ndn-cxx logging''')
+
 def configure(conf):
     conf.start_msg('Building static library')
     if conf.options.enable_static:
@@ -64,6 +68,10 @@ def configure(conf):
 
     if not conf.options.enable_shared and not conf.options.enable_static:
         conf.fatal("Either static library or shared library must be enabled")
+
+    if conf.options.enable_logging:
+        conf.env['ENABLE_LOGGING'] = True
+        conf.define('ENABLE_LOGGING', 1)
 
     conf.load(['compiler_cxx', 'gnu_dirs', 'c_osx', 'default-compiler-flags',
                'osx-security', 'pch', 'boost', 'cryptopp', 'sqlite3',
@@ -155,7 +163,8 @@ def build(bld):
         name="ndn-cxx",
         source=bld.path.ant_glob('src/**/*.cpp',
                                  excl=['src/security/**/*-osx.cpp',
-                                       'src/**/*-sqlite3.cpp']),
+                                       'src/**/*-sqlite3.cpp',
+                                       'src/util/logger*.cpp']),
         headers='src/common-pch.hpp',
         use='version BOOST CRYPTOPP SQLITE3 RT PTHREAD',
         includes=". src",
@@ -167,6 +176,9 @@ def build(bld):
         libndn_cxx['source'] += bld.path.ant_glob('src/security/**/*-osx.cpp')
         libndn_cxx['mac_app'] = True
         libndn_cxx['use'] += " OSX_COREFOUNDATION OSX_SECURITY"
+
+    if bld.env['ENABLE_LOGGING']:
+        libndn_cxx['source'] += bld.path.ant_glob('src/util/logger*.cpp')
 
     # In case we want to make it optional later
     libndn_cxx['source'] += bld.path.ant_glob('src/**/*-sqlite3.cpp')
@@ -235,10 +247,14 @@ def build(bld):
 
     headers = bld.path.ant_glob('src/**/*.hpp',
                                 excl=['src/security/**/*-osx.hpp',
+                                      'src/util/logger-factory.hpp',
                                       'src/detail/**/*',
                                       'src/util/detail/**/*'])
     if bld.env['HAVE_OSX_SECURITY']:
         headers += bld.path.ant_glob('src/security/**/*-osx.hpp')
+
+    if bld.env['ENABLE_LOGGING']:
+        headers += bld.path.ant_glob('src/util/logger-factory.hpp')
 
     bld.install_files("%s/ndn-cxx" % bld.env['INCLUDEDIR'], headers,
                       relative_trick=True, cwd=bld.path.find_node('src'))
