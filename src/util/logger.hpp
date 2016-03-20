@@ -22,14 +22,14 @@
 #ifndef NDN_UTIL_LOGGER_HPP
 #define NDN_UTIL_LOGGER_HPP
 
-#define NDN_CXX_LOG_INIT(name)
+#define NDN_CXX_LOG_INIT(name) class Logger_##name {}
 
-#define NDN_CXX_LOG_TRACE(expression)
-#define NDN_CXX_LOG_DEBUG(expression)
-#define NDN_CXX_LOG_INFO(expression)
-#define NDN_CXX_LOG_WARN(expression)
-#define NDN_CXX_LOG_ERROR(expression)
-#define NDN_CXX_LOG_FATAL(expression)
+#define NDN_CXX_LOG_TRACE(expression) do { } while (false)
+#define NDN_CXX_LOG_DEBUG(expression) do { } while (false)
+#define NDN_CXX_LOG_INFO(expression) do { } while (false)
+#define NDN_CXX_LOG_WARN(expression) do { } while (false)
+#define NDN_CXX_LOG_ERROR(expression) do { } while (false)
+#define NDN_CXX_LOG_FATAL(expression) do { } while (false)
 
 
 #endif // NDN_UTIL_LOGGER_HPP
