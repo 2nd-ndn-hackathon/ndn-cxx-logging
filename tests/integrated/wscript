@@ -18,3 +18,10 @@ def build(bld):
         use='ndn-cxx boost-tests-base BOOST',
         includes='..',
         install_path=None)
+
+    bld(features="cxx cxxprogram",
+        target="log",
+        source=bld.path.ant_glob(["log_*.cpp"]),
+        use='ndn-cxx BOOST',
+        includes='..',
+        install_path=None)
