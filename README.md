@@ -1,3 +1,7 @@
+# Logging Facility in ndn-cxx
+
+<http://2nd-ndn-hackathon.named-data.net/ndn-cxx-logging/>
+
 ndn-cxx: NDN C++ library with eXperimental eXtensions
 =====================================================
 
