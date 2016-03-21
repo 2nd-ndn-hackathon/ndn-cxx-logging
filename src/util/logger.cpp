@@ -45,7 +45,7 @@ makeLogger(const std::string& name)
 }
 
 std::ostream&
-operator<<(std::ostream& os, const boost::posix_time::ptime& timestamp)
+operator<<(std::ostream& os, const LoggerTimestamp&)
 {
   using namespace ndn::time;
 

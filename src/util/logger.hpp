@@ -101,13 +101,13 @@ struct LoggerTimestamp
  *  \note This function is thread-safe.
  */
 std::ostream&
-operator<<(std::ostream& os, const boost::posix_time::ptime& timestamp);
+operator<<(std::ostream& os, const LoggerTimestamp&);
 
 BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
 
 #define NDN_CXX_LOG(lvl, lvlstr, expression) \
   do { \
-    BOOST_LOG(NdnCxxLogger::get()) << " " BOOST_STRINGIZE(lvlstr) ": " << expression; \
+    BOOST_LOG(NdnCxxLogger::get()) << "" << ::ndn::util::LoggerTimestamp() <<  " " BOOST_STRINGIZE(lvlstr) ": " << expression; \
   } while (false)
 
 Logger
