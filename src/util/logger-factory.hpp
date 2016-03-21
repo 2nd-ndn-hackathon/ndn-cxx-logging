@@ -33,6 +33,8 @@
 namespace ndn {
 namespace util {
 
+typedef boost::log::sources::channel_logger_mt<> LogSource;
+
 class LoggerFactory : noncopyable
 {
 public:
@@ -47,8 +49,7 @@ public:
   };
 
   static void
-  addLogger(const std::string& moduleName,
-            const boost::log::sources::channel_logger_mt<>& logger);
+  addLogger(const std::string& moduleName, const LogSource& logger);
 
   /** @example *=INFO:Face=DEBUG:Controller=WARN
    */
@@ -71,7 +72,7 @@ private:
 private:
   std::mutex m_mutex;
   std::map<std::string, LogLevel> m_enabledLevel;
-  std::map<std::string, boost::log::sources::channel_logger_mt<>> m_loggers;
+  std::map<std::string, LogSource> m_loggers;
 };
 
 } // namespace util

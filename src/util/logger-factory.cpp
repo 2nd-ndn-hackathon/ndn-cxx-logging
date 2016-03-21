@@ -25,8 +25,7 @@ namespace ndn {
 namespace util {
 
 void
-LoggerFactory::addLogger(const std::string& moduleName,
-                         const boost::log::sources::channel_logger_mt<>& logger)
+LoggerFactory::addLogger(const std::string& moduleName, const LogSource& logger)
 {
   std::lock_guard<std::mutex> lock(get().m_mutex);
   get().m_loggers[moduleName] = logger;
