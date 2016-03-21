@@ -77,15 +77,6 @@ operator<<(std::ostream& output, const Logger& logger)
   return output;
 }
 
-#define NDN_CXX_LOG_INIT(name) class Logger_##name {}
-
-#define NDN_CXX_LOG_TRACE(expression) do { } while (false)
-#define NDN_CXX_LOG_DEBUG(expression) do { } while (false)
-#define NDN_CXX_LOG_INFO(expression) do { } while (false)
-#define NDN_CXX_LOG_WARN(expression) do { } while (false)
-#define NDN_CXX_LOG_ERROR(expression) do { } while (false)
-#define NDN_CXX_LOG_FATAL(expression) do { } while (false)
-
 /** \brief a tag that writes a timestamp upon stream output
  *  \example std::clog << LoggerTimestamp()
  */
@@ -99,7 +90,50 @@ struct LoggerTimestamp
 std::ostream&
 operator<<(std::ostream& os, const LoggerTimestamp&);
 
-#else // NDN_CXX_ENABLE_LOGGING
+/** \brief declare a log module
+ */
+#define NDN_CXX_LOG_INIT(name) class Logger_##name {}
+
+/** \brief log at TRACE level
+ *  \pre A log module must be declared in the same translation unit.
+ */
+#define NDN_CXX_LOG_TRACE(expression) \
+  do { ::std::clog << ::ndn::util::LoggerTimestamp() << " TRACE " << expression << ::std::endl; } while (false)
+
+/** \brief log at DEBUG level
+ *  \pre A log module must be declared in the same translation unit.
+ */
+#define NDN_CXX_LOG_DEBUG(expression) \
+  do { ::std::clog << ::ndn::util::LoggerTimestamp() << " DEBUG " << expression << ::std::endl; } while (false)
+
+/** \brief log at INFO level
+ *  \pre A log module must be declared in the same translation unit.
+ */
+#define NDN_CXX_LOG_INFO(expression) \
+  do {  ::std::clog << ::ndn::util::LoggerTimestamp() << " INFO " << expression << ::std::endl; } while (false)
+
+/** \brief log at WARN level
+ *  \pre A log module must be declared in the same translation unit.
+ */
+#define NDN_CXX_LOG_WARN(expression) \
+  do { ::std::clog << ::ndn::util::LoggerTimestamp() << " WARNING " << expression << ::std::endl; } while (false)
+
+/** \brief log at ERROR level
+ *  \pre A log module must be declared in the same translation unit.
+ */
+#define NDN_CXX_LOG_ERROR(expression) \
+  do { ::std::clog << ::ndn::util::LoggerTimestamp() << " ERROR " << expression << ::std::endl; } while (false)
+
+/** \brief log at FATAL level
+ *  \pre A log module must be declared in the same translation unit.
+ */
+#define NDN_CXX_LOG_FATAL(expression) \
+  do { ::std::clog << ::ndn::util::LoggerTimestamp() << " FATAL " << expression << ::std::endl; } while (false)
+
+} // namespace util
+} // namespace ndn
+
+#else
 
 #define NDN_CXX_LOG_INIT(name)
 
@@ -111,8 +145,5 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
 #define NDN_CXX_LOG_FATAL(expression) do { } while (false)
 
 #endif // NDN_CXX_ENABLE_LOGGING
-
-} // namespace util
-} // namespace ndn
 
 #endif // NDN_UTIL_LOGGER_HPP
