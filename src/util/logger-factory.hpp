@@ -36,16 +36,6 @@ namespace util {
 class LoggerFactory : noncopyable
 {
 public:
-  class Error : public std::runtime_error
-  {
-  public:
-    explicit
-    Error(const std::string& error)
-      : std::runtime_error(error)
-    {
-    }
-  };
-
   static void
   addLogger(const std::string& moduleName, Logger* logger);
 
@@ -64,8 +54,19 @@ private:
   static LoggerFactory&
   get();
 
+  LoggerFactory();
+
+  void
+  setSeverityLevelsImpl(const std::string& config);
+
+  void
+  setSeverityLevelImpl(const std::string& moduleName, LogLevel level);
+
   static LogLevel
   parseLevel(const std::string& levelStr);
+
+  void
+  setDestinationImpl(std::ostream& os);
 
 private:
   std::mutex m_mutex;

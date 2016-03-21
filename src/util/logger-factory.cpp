@@ -21,9 +21,30 @@
 
 #include "logger-factory.hpp"
 #include <boost/log/expressions.hpp>
+#include <fstream>
 
 namespace ndn {
 namespace util {
+
+LoggerFactory&
+LoggerFactory::get()
+{
+  // Initialization of block-scope variables with static storage duration is thread-safe.
+  // See ISO C++ standard [stmt.dcl]/4
+  static LoggerFactory globalLoggerFactory;
+  return globalLoggerFactory;
+}
+
+LoggerFactory::LoggerFactory()
+{
+  static std::ofstream nullOutputStream;
+  this->setDestinationImpl(nullOutputStream);
+
+  const char* environ = std::getenv("NDN_CXX_LOG");
+  if (environ != nullptr) {
+    this->setSeverityLevelsImpl(environ);
+  }
+}
 
 void
 LoggerFactory::addLogger(const std::string& moduleName, Logger* logger)
@@ -41,63 +62,53 @@ LoggerFactory::addLogger(const std::string& moduleName, Logger* logger)
 }
 
 void
-LoggerFactory::setSeverityLevels(const std::string& config)
+LoggerFactory::setSeverityLevel(const std::string& moduleName, LogLevel level)
 {
-  std::stringstream ss(config);
-  std::string configModule;
-  while (std::getline(ss, configModule, ':')) {
-    size_t ind = configModule.find('=');
-    if (ind == std::string::npos)
-      BOOST_THROW_EXCEPTION(Error("wrong log configuration"));
-
-    std::string moduleName = configModule.substr(0, ind);
-    LogLevel level = parseLevel(configModule.substr(ind+1));
-
-    setSeverityLevel(moduleName, level);
-  }
+  get().setSeverityLevel(moduleName, level);
 }
 
 void
-LoggerFactory::setSeverityLevel(const std::string& moduleName, LogLevel level)
+LoggerFactory::setSeverityLevelImpl(const std::string& moduleName, LogLevel level)
 {
-  LoggerFactory& lf = get();
-  std::lock_guard<std::mutex> lock(lf.m_mutex);
+  std::lock_guard<std::mutex> lock(m_mutex);
   if (moduleName == "*") {
-    lf.m_enabledLevel.clear();
-    lf.m_enabledLevel["*"] = level;
+    m_enabledLevel.clear();
+    m_enabledLevel["*"] = level;
 
-    for (auto i = lf.m_loggers.begin(); i != lf.m_loggers.end(); ++i) {
+    for (auto i = m_loggers.begin(); i != m_loggers.end(); ++i) {
       i->second->setLevel(level);
     }
     return;
   }
 
-  lf.m_enabledLevel[moduleName] = level;
-  auto range = lf.m_loggers.equal_range(moduleName);
+  m_enabledLevel[moduleName] = level;
+  auto range = m_loggers.equal_range(moduleName);
   for (auto i = range.first; i != range.second; ++i) {
     i->second->setLevel(level);
   }
 }
 
 void
-LoggerFactory::setDestination(std::ostream& os)
+LoggerFactory::setSeverityLevels(const std::string& config)
 {
-  auto backend = boost::make_shared<boost::log::sinks::text_ostream_backend>();
-  backend->auto_flush(true);
-  backend->add_stream(boost::shared_ptr<std::ostream>(&os, bind([]{})));
-
-  get().m_sink = boost::make_shared<Sink>(backend);
-  get().m_sink->set_formatter(boost::log::expressions::stream << boost::log::expressions::message);
-  boost::log::core::get()->add_sink(get().m_sink);
+  get().setSeverityLevelsImpl(config);
 }
 
-LoggerFactory&
-LoggerFactory::get()
+void
+LoggerFactory::setSeverityLevelsImpl(const std::string& config)
 {
-  // Initialization of block-scope variables with static storage duration is thread-safe.
-  // See ISO C++ standard [stmt.dcl]/4
-  static LoggerFactory globalLoggerFactory;
-  return globalLoggerFactory;
+  std::stringstream ss(config);
+  std::string configModule;
+  while (std::getline(ss, configModule, ':')) {
+    size_t ind = configModule.find('=');
+    if (ind == std::string::npos)
+      BOOST_THROW_EXCEPTION(std::invalid_argument("wrong log configuration"));
+
+    std::string moduleName = configModule.substr(0, ind);
+    LogLevel level = parseLevel(configModule.substr(ind+1));
+
+    this->setSeverityLevelImpl(moduleName, level);
+  }
 }
 
 LogLevel
@@ -120,7 +131,27 @@ LoggerFactory::parseLevel(const std::string& levelStr)
   else if (levelStr == "ALL")
     return LogLevel::ALL;
 
-  BOOST_THROW_EXCEPTION(Error("Unrecognized log level '" + levelStr + "'"));
+  BOOST_THROW_EXCEPTION(std::invalid_argument("Unrecognized log level '" + levelStr + "'"));
+}
+
+void
+LoggerFactory::setDestination(std::ostream& os)
+{
+  get().setDestinationImpl(os);
+}
+
+void
+LoggerFactory::setDestinationImpl(std::ostream& os)
+{
+  std::lock_guard<std::mutex> lock(m_mutex);
+
+  auto backend = boost::make_shared<boost::log::sinks::text_ostream_backend>();
+  backend->auto_flush(true);
+  backend->add_stream(boost::shared_ptr<std::ostream>(&os, bind([]{})));
+
+  m_sink = boost::make_shared<Sink>(backend);
+  m_sink->set_formatter(boost::log::expressions::stream << boost::log::expressions::message);
+  boost::log::core::get()->add_sink(m_sink);
 }
 
 } // namespace util
