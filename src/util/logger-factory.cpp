@@ -28,8 +28,16 @@ namespace util {
 void
 LoggerFactory::addLogger(const std::string& moduleName, Logger* logger)
 {
-  std::lock_guard<std::mutex> lock(get().m_mutex);
-  get().m_loggers.insert({moduleName, logger});
+  LoggerFactory& lf = get();
+  std::lock_guard<std::mutex> lock(lf.m_mutex);
+  lf.m_loggers.insert({moduleName, logger});
+
+  auto levelIt = lf.m_enabledLevel.find(moduleName);
+  if (levelIt == lf.m_enabledLevel.end()) {
+    levelIt = lf.m_enabledLevel.find("*");
+  }
+  LogLevel level = levelIt == lf.m_enabledLevel.end() ? LogLevel::INFO : levelIt->second;
+  logger->setLevel(level);
 }
 
 void
@@ -52,6 +60,23 @@ LoggerFactory::setSeverityLevels(const std::string& config)
 void
 LoggerFactory::setSeverityLevel(const std::string& moduleName, LogLevel level)
 {
+  LoggerFactory& lf = get();
+  std::lock_guard<std::mutex> lock(lf.m_mutex);
+  if (moduleName == "*") {
+    lf.m_enabledLevel.clear();
+    lf.m_enabledLevel["*"] = level;
+
+    for (auto i = lf.m_loggers.begin(); i != lf.m_loggers.end(); ++i) {
+      i->second->setLevel(level);
+    }
+    return;
+  }
+
+  lf.m_enabledLevel[moduleName] = level;
+  auto range = lf.m_loggers.equal_range(moduleName);
+  for (auto i = range.first; i != range.second; ++i) {
+    i->second->setLevel(level);
+  }
 }
 
 void
