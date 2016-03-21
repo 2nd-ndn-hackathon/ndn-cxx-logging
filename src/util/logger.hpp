@@ -23,7 +23,6 @@
 #define NDN_UTIL_LOGGER_HPP
 
 #include "common.hpp"
-#include "name.hpp"
 
 #include <boost/log/expressions.hpp>
 #include <boost/log/expressions/keyword.hpp>
