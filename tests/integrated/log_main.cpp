@@ -1,5 +1,7 @@
 #include "util/logger-factory.hpp"
 
+#include <iostream>
+
 namespace ndn {
 namespace tests_integrated_log {
 
