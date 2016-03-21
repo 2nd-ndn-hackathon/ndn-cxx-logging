@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_LOGGER_HPP
 #define NDN_UTIL_LOGGER_HPP
 
-#include "common.hpp"
+#include "../common.hpp"
 
 #ifdef NDN_CXX_ENABLE_LOGGING
 
