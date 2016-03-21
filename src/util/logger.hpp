@@ -24,22 +24,22 @@
 
 #include "common.hpp"
 
-#ifdef NDN_CXX_ENABLE_LOGGING
-
 namespace ndn {
 namespace util {
 
-/** \brief indicates a log level
+#ifdef NDN_CXX_ENABLE_LOGGING
+
+/** \brief indicates the severity level of a log message
  */
 enum class LogLevel {
-  FATAL   = -1, ///< fatal (will be logged unconditionally)
-  NONE    = 0,  ///< no messages
-  ERROR   = 1,  ///< serious error messages
-  WARN    = 2,  ///< warning messages
-  INFO    = 3,  ///< informational messages
-  DEBUG   = 4,  ///< debug messages
-  TRACE   = 5,  ///< trace messages (most verbose)
-  ALL     = 255 ///< all messages
+  FATAL   = -1,   ///< fatal (will be logged unconditionally)
+  NONE    = 0,    ///< no messages
+  ERROR   = 1,    ///< serious error messages
+  WARN    = 2,    ///< warning messages
+  INFO    = 3,    ///< informational messages
+  DEBUG   = 4,    ///< debug messages
+  TRACE   = 5,    ///< trace messages (most verbose)
+  ALL     = 255   ///< all messages
 };
 
 class Logger
@@ -48,7 +48,8 @@ public:
   Logger(const std::string& name, LogLevel level);
 
   const std::string&
-  getName() const {
+  getName() const
+  {
     return m_moduleName;
   }
 
@@ -76,7 +77,6 @@ operator<<(std::ostream& output, const Logger& logger)
   return output;
 }
 
-
 #define NDN_CXX_LOG_INIT(name) class Logger_##name {}
 
 #define NDN_CXX_LOG_TRACE(expression) do { } while (false)
@@ -99,12 +99,9 @@ struct LoggerTimestamp
 std::ostream&
 operator<<(std::ostream& os, const LoggerTimestamp&);
 
-} // namespace util
-} // namespace ndn
+#else // NDN_CXX_ENABLE_LOGGING
 
-#else
-
-#define NDN_CXX_LOG_INIT(name) class Logger_##name {}
+#define NDN_CXX_LOG_INIT(name)
 
 #define NDN_CXX_LOG_TRACE(expression) do { } while (false)
 #define NDN_CXX_LOG_DEBUG(expression) do { } while (false)
@@ -113,7 +110,9 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
 #define NDN_CXX_LOG_ERROR(expression) do { } while (false)
 #define NDN_CXX_LOG_FATAL(expression) do { } while (false)
 
+#endif // NDN_CXX_ENABLE_LOGGING
 
-#endif // ENABLE_CXX_LOGGING
+} // namespace util
+} // namespace ndn
 
 #endif // NDN_UTIL_LOGGER_HPP
