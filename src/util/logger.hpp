@@ -85,6 +85,19 @@ operator<<(std::ostream& output, const Logger& logger)
 #define NDN_CXX_LOG_ERROR(expression) do { } while (false)
 #define NDN_CXX_LOG_FATAL(expression) do { } while (false)
 
+/** \brief a tag that writes a timestamp upon stream output
+ *  \example std::clog << LoggerTimestamp()
+ */
+struct LoggerTimestamp
+{
+};
+
+/** \brief write a timestamp to \p os
+ *  \note This function is thread-safe.
+ */
+std::ostream&
+operator<<(std::ostream& os, const LoggerTimestamp&);
+
 } // namespace util
 } // namespace ndn
 
