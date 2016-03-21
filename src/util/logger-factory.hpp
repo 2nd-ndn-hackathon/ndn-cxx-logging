@@ -28,6 +28,8 @@
 #include <mutex>
 #include <unordered_map>
 
+#include <boost/log/sinks.hpp>
+
 namespace ndn {
 namespace util {
 
@@ -69,6 +71,9 @@ private:
   std::mutex m_mutex;
   std::unordered_map<std::string, LogLevel> m_enabledLevel;
   std::unordered_multimap<std::string, Logger> m_loggers;
+
+  typedef boost::log::sinks::asynchronous_sink<boost::log::sinks::text_ostream_backend> Sink;
+  boost::shared_ptr<Sink> m_sink;
 };
 
 } // namespace util

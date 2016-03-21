@@ -16,11 +16,15 @@ main(int argc, char** argv)
 {
   // log with environ[NDN_CXX_LOG]
   std::cout << "--------" << std::endl;
+  sleep(1);
+  ndn::util::LoggerFactory::setDestination(std::clog);
   logFromModule1();
   logFromModule2();
 
   if (argc > 1) {
+    sleep(1);
     std::cout << "--------" << std::endl;
+    sleep(1);
 
     // change log levels to argv[1]
     ndn::util::LoggerFactory::setSeverityLevels(argv[1]);
@@ -28,6 +32,7 @@ main(int argc, char** argv)
     logFromModule2();
   }
 
+  sleep(1);
   std::cout << "--------" << std::endl;
 
   return 0;

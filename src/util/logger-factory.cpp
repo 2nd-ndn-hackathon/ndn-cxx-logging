@@ -56,6 +56,13 @@ LoggerFactory::setSeverityLevel(const std::string& moduleName, LogLevel level)
 void
 LoggerFactory::setDestination(std::ostream& os)
 {
+  auto backend = boost::make_shared<boost::log::sinks::text_ostream_backend>();
+  backend->auto_flush(true);
+  backend->add_stream(boost::shared_ptr<std::ostream>(&os, bind([]{})));
+
+  get().m_sink = boost::make_shared<Sink>(backend);
+  get().m_sink->set_formatter(boost::log::expressions::stream << boost::log::expressions::message);
+  boost::log::core::get()->add_sink(get().m_sink);
 }
 
 LoggerFactory&
