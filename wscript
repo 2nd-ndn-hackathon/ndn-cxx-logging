@@ -214,6 +214,8 @@ def build(bld):
             pkgconfig_linkflags += Utils.to_list(bld.env['LINKFLAGS_%s' % lib])
         if bld.env['CXXFLAGS_%s' % lib]:
             pkgconfig_cxxflags += Utils.to_list(bld.env['CXXFLAGS_%s' % lib])
+        if bld.env['DEFINES_%s' % lib]:
+            pkgconfig_cxxflags += [ '-D%s' % define for define in Utils.to_list(bld.env['DEFINES_%s' % lib]) ]
 
     EXTRA_FRAMEWORKS = "";
     if bld.env['HAVE_OSX_SECURITY']:
