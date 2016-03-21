@@ -130,10 +130,7 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
 #define NDN_CXX_LOG_FATAL(expression) \
   do { ::std::clog << ::ndn::util::LoggerTimestamp() << " FATAL " << expression << ::std::endl; } while (false)
 
-} // namespace util
-} // namespace ndn
-
-#else
+#else // NDN_CXX_ENABLE_LOGGING
 
 #define NDN_CXX_LOG_INIT(name)
 
@@ -145,5 +142,8 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
 #define NDN_CXX_LOG_FATAL(expression) do { } while (false)
 
 #endif // NDN_CXX_ENABLE_LOGGING
+
+} // namespace util
+} // namespace ndn
 
 #endif // NDN_UTIL_LOGGER_HPP
