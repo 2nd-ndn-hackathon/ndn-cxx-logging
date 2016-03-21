@@ -111,7 +111,7 @@ main(int, char**)
                        'regex', 'program_options', 'chrono', 'random']
 
     if conf.env['ENABLE_LOGGING']:
-        USED_BOOST_LIBS += ['log', 'log_setup']
+        USED_BOOST_LIBS += ['thread', 'log', 'log_setup']
 
     if conf.env['WITH_TESTS']:
         USED_BOOST_LIBS += ['unit_test_framework']
