@@ -23,7 +23,6 @@
 #define NDN_UTIL_SEGMENT_FETCHER_HPP
 
 #include "scheduler.hpp"
-#include "logger.hpp"
 #include "../common.hpp"
 #include "../face.hpp"
 #include "../security/validator.hpp"
