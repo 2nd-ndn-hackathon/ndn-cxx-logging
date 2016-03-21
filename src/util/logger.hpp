@@ -136,7 +136,7 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
 
 #else // NDN_CXX_ENABLE_LOGGING
 
-#define NDN_CXX_LOG_INIT(name)
+#define NDN_CXX_LOG_INIT(name) struct ndn_cxx__allow_trailing_semicolon
 
 #define NDN_CXX_LOG_TRACE(expression) do { } while (false)
 #define NDN_CXX_LOG_DEBUG(expression) do { } while (false)

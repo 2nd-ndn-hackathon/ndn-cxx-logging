@@ -253,14 +253,14 @@ def build(bld):
 
     headers = bld.path.ant_glob('src/**/*.hpp',
                                 excl=['src/security/**/*-osx.hpp',
-                                      'src/util/logger-factory.hpp',
                                       'src/detail/**/*',
+                                      'src/util/logger*.hpp',
                                       'src/util/detail/**/*'])
     if bld.env['HAVE_OSX_SECURITY']:
         headers += bld.path.ant_glob('src/security/**/*-osx.hpp')
 
     if bld.env['ENABLE_LOGGING']:
-        headers += bld.path.ant_glob('src/util/logger-factory.hpp')
+        headers += bld.path.ant_glob('src/util/logger*.hpp')
 
     bld.install_files("%s/ndn-cxx" % bld.env['INCLUDEDIR'], headers,
                       relative_trick=True, cwd=bld.path.find_node('src'))
