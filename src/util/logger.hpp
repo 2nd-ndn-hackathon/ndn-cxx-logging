@@ -27,8 +27,7 @@
 #ifdef NDN_CXX_ENABLE_LOGGING
 
 #include <boost/log/common.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/sources/channel_logger.hpp>
+#include <boost/log/sources/logger.hpp>
 
 namespace ndn {
 namespace util {
@@ -46,11 +45,17 @@ enum class LogLevel {
   ALL     = 255   ///< all messages
 };
 
-class Logger : public boost::log::sources::channel_logger_mt<>
+class Logger : public boost::log::sources::logger_mt
 {
 public:
   explicit
   Logger(const std::string& name);
+
+  const std::string&
+  getModuleName() const
+  {
+    return m_moduleName;
+  }
 
   bool
   isLevelEnabled(LogLevel level) const
@@ -64,15 +69,9 @@ public:
     m_currentLevel = level;
   }
 
-  const std::string&
-  getModuleName()
-  {
-    return m_moduleName;
-  }
-
 private:
+  const std::string m_moduleName;
   LogLevel m_currentLevel; // TODO: not thread-safe
-  std::string m_moduleName;
 };
 
 /** \brief declare a log module
