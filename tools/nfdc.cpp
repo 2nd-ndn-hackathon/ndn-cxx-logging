@@ -33,6 +33,7 @@
 
 #include <ndn-cxx/management/nfd-face-query-filter.hpp>
 #include <ndn-cxx/management/nfd-face-status.hpp>
+#include <ndn-cxx/util/logger-factory.hpp>
 #include <ndn-cxx/util/segment-fetcher.hpp>
 
 void
@@ -528,6 +529,8 @@ Nfdc::onError(uint32_t code, const std::string& error, const std::string& messag
 int
 main(int argc, char** argv)
 {
+  ndn::util::LoggerFactory::setDestination(std::clog);
+
   ndn::Face face;
   nfdc::Nfdc p(face);
 
