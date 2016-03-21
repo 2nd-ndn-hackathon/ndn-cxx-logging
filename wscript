@@ -109,11 +109,15 @@ main(int, char**)
 
     USED_BOOST_LIBS = ['system', 'filesystem', 'date_time', 'iostreams',
                        'regex', 'program_options', 'chrono', 'random']
+
+    if conf.env['ENABLE_LOGGING']:
+        USED_BOOST_LIBS += ['log', 'log_setup']
+
     if conf.env['WITH_TESTS']:
         USED_BOOST_LIBS += ['unit_test_framework']
         conf.define('HAVE_TESTS', 1)
 
-    conf.check_boost(lib=USED_BOOST_LIBS, mandatory=True)
+    conf.check_boost(lib=USED_BOOST_LIBS, mandatory=True, mt=True)
     if conf.env.BOOST_VERSION_NUMBER < 104800:
         Logs.error("Minimum required boost version is 1.48.0")
         Logs.error("Please upgrade your distribution or install custom boost libraries" +
