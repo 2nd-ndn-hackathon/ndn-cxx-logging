@@ -23,6 +23,16 @@
 #define NDN_UTIL_LOGGER_HPP
 
 #include "common.hpp"
+#include "name.hpp"
+
+#include <boost/log/expressions.hpp>
+#include <boost/log/expressions/keyword.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/sources/basic_logger.hpp>
+#include <boost/log/sources/channel_feature.hpp>
+#include <boost/log/sources/channel_logger.hpp>
+#include <boost/log/support/date_time.hpp>
 
 namespace ndn {
 namespace util {
@@ -88,7 +98,17 @@ struct LoggerTimestamp
  *  \note This function is thread-safe.
  */
 std::ostream&
-operator<<(std::ostream& os, const LoggerTimestamp&);
+operator<<(std::ostream& os, const boost::posix_time::ptime& timestamp);
+
+static
+::boost::log::sources::channel_logger_mt< > g_channelLogger;
+
+BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
+
+#define NDN_CXX_LOG(level, msg, expression)                                 \
+  do {                                                                      \
+    BOOST_LOG(::ndn::util::g_channelLogger) << " "#msg": " << expression;   \
+  } while (false)
 
 /** \brief declare a log module
  */
@@ -97,38 +117,32 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
 /** \brief log at TRACE level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_TRACE(expression) \
-  do { ::std::clog << ::ndn::util::LoggerTimestamp() << " TRACE " << expression << ::std::endl; } while (false)
+#define NDN_CXX_LOG_TRACE(expression) NDN_CXX_LOG(TRACE, TRACE, expression)
 
 /** \brief log at DEBUG level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_DEBUG(expression) \
-  do { ::std::clog << ::ndn::util::LoggerTimestamp() << " DEBUG " << expression << ::std::endl; } while (false)
+#define NDN_CXX_LOG_DEBUG(expression) NDN_CXX_LOG(DEBUG, DEBUG, expression)
 
 /** \brief log at INFO level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_INFO(expression) \
-  do {  ::std::clog << ::ndn::util::LoggerTimestamp() << " INFO " << expression << ::std::endl; } while (false)
+#define NDN_CXX_LOG_INFO(expression) NDN_CXX_LOG(INFO, INFO, expression)
 
 /** \brief log at WARN level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_WARN(expression) \
-  do { ::std::clog << ::ndn::util::LoggerTimestamp() << " WARNING " << expression << ::std::endl; } while (false)
+#define NDN_CXX_LOG_WARN(expression) NDN_CXX_LOG(WARN, WARNING, expression)
 
 /** \brief log at ERROR level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_ERROR(expression) \
-  do { ::std::clog << ::ndn::util::LoggerTimestamp() << " ERROR " << expression << ::std::endl; } while (false)
+#define NDN_CXX_LOG_ERROR(expression) NDN_CXX_LOG(ERROR, ERROR, expression)
 
 /** \brief log at FATAL level
  *  \pre A log module must be declared in the same translation unit.
  */
-#define NDN_CXX_LOG_FATAL(expression) \
-  do { ::std::clog << ::ndn::util::LoggerTimestamp() << " FATAL " << expression << ::std::endl; } while (false)
+#define NDN_CXX_LOG_FATAL(expression) NDN_CXX_LOG(FATAL, FATAL, expression)
 
 #else // NDN_CXX_ENABLE_LOGGING
 

@@ -1,4 +1,5 @@
 #include "util/logger.hpp"
+#include "name.hpp"
 
 NDN_CXX_LOG_INIT(Module1);
 
@@ -8,7 +9,7 @@ namespace tests_integrated_log {
 void
 logFromModule1()
 {
-  NDN_CXX_LOG_TRACE("trace1");
+  NDN_CXX_LOG_TRACE("trace1" << Name("/A"));
   NDN_CXX_LOG_DEBUG("debug1");
   NDN_CXX_LOG_INFO("info1");
   NDN_CXX_LOG_WARN("warn1");
