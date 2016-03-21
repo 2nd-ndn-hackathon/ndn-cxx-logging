@@ -47,7 +47,7 @@ public:
   };
 
   static void
-  addLogger(const std::string& moduleName, const Logger& logger);
+  addLogger(const std::string& moduleName, Logger* logger);
 
   /** @example *=INFO:Face=DEBUG:NfdController=WARN
    */
@@ -70,7 +70,7 @@ private:
 private:
   std::mutex m_mutex;
   std::unordered_map<std::string, LogLevel> m_enabledLevel;
-  std::unordered_multimap<std::string, Logger> m_loggers;
+  std::unordered_multimap<std::string, Logger*> m_loggers;
 
   typedef boost::log::sinks::asynchronous_sink<boost::log::sinks::text_ostream_backend> Sink;
   boost::shared_ptr<Sink> m_sink;

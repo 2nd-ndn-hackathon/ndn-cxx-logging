@@ -34,14 +34,7 @@ Logger::Logger(const std::string& name)
   : boost::log::sources::channel_logger_mt<>(name)
   , m_currentLevel(LogLevel::NONE)
 {
-}
-
-Logger
-makeLogger(const std::string& name)
-{
-  Logger logger(name);
-  LoggerFactory::addLogger(name, logger);
-  return std::move(logger);
+  LoggerFactory::addLogger(name, this);
 }
 
 std::ostream&

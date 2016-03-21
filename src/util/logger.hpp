@@ -28,7 +28,6 @@
 
 #include <boost/log/common.hpp>
 #include <boost/log/sources/channel_logger.hpp>
-#include <boost/log/sources/global_logger_storage.hpp>
 
 namespace ndn {
 namespace util {
@@ -68,16 +67,15 @@ private:
   LogLevel m_currentLevel; // TODO: not thread-safe
 };
 
-Logger
-makeLogger(const std::string& name);
-
 /** \brief declare a log module
  */
 #define NDN_CXX_LOG_INIT(name) \
-  namespace { BOOST_LOG_GLOBAL_LOGGER(NdnCxxLogger, ::ndn::util::Logger) } \
-  inline BOOST_LOG_GLOBAL_LOGGER_INIT(NdnCxxLogger, ::ndn::util::Logger) \
-  { \
-    return ::ndn::util::makeLogger(BOOST_STRINGIZE(name)); \
+  namespace { \
+    inline ::ndn::util::Logger& getNdnCxxLogger() \
+    { \
+      static ::ndn::util::Logger logger(BOOST_STRINGIZE(name)); \
+      return logger; \
+    } \
   } \
   struct ndn_cxx__allow_trailing_semicolon
 
@@ -96,10 +94,10 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
 
 #define NDN_CXX_LOG(lvl, lvlstr, expression) \
   do { \
-    if (NdnCxxLogger::get().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
-      BOOST_LOG(NdnCxxLogger::get()) << "" << ::ndn::util::LoggerTimestamp{} \
-                                     << " " BOOST_STRINGIZE(lvlstr) ": " \
-                                     << expression; \
+    if (getNdnCxxLogger().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
+      BOOST_LOG(getNdnCxxLogger()) << "" << ::ndn::util::LoggerTimestamp{} \
+                                   << " " BOOST_STRINGIZE(lvlstr) ": " \
+                                   << expression; \
     } \
   } while (false)
 
