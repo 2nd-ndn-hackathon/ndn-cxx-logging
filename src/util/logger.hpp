@@ -27,6 +27,7 @@
 #ifdef NDN_CXX_ENABLE_LOGGING
 
 #include <boost/log/common.hpp>
+#include <boost/log/expressions.hpp>
 #include <boost/log/sources/channel_logger.hpp>
 
 namespace ndn {
@@ -63,8 +64,15 @@ public:
     m_currentLevel = level;
   }
 
+  const std::string&
+  getModuleName()
+  {
+    return m_moduleName;
+  }
+
 private:
   LogLevel m_currentLevel; // TODO: not thread-safe
+  std::string m_moduleName;
 };
 
 /** \brief declare a log module
@@ -97,6 +105,7 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
     if (getNdnCxxLogger().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
       BOOST_LOG(getNdnCxxLogger()) << "" << ::ndn::util::LoggerTimestamp{} \
                                    << " " BOOST_STRINGIZE(lvlstr) ": " \
+                                   << "[" << getNdnCxxLogger().getModuleName() << "] " \
                                    << expression; \
     } \
   } while (false)

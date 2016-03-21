@@ -33,6 +33,7 @@ namespace util {
 Logger::Logger(const std::string& name)
   : boost::log::sources::channel_logger_mt<>(name)
   , m_currentLevel(LogLevel::NONE)
+  , m_moduleName(name)
 {
   LoggerFactory::addLogger(name, this);
 }
