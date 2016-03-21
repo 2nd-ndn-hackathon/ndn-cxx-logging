@@ -118,9 +118,10 @@ public:
   {
     for (const auto& filter : m_interestFilterTable) {
       if (filter->doesMatch(interest.getName())) {
-        const InterestFilter& ifilter = filter->getFilter();
-        NDN_CXX_LOG_DEBUG("   matching " << ifilter.getPrefix() << " " <<
-                          (ifilter.hasRegexFilter() ? ifilter.getRegexFilter().getExpr() : std::string()));
+        NDN_CXX_LOG_DEBUG("   matching " << filter->getFilter().getPrefix() << " "
+                          << (filter->getFilter().hasRegexFilter() ?
+                              filter->getFilter().getRegexFilter().getExpr() :
+                              std::string()));
 
         filter->invokeInterestCallback(interest);
       }

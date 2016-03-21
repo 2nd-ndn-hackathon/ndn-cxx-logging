@@ -19,9 +19,10 @@ def build(bld):
         includes='..',
         install_path=None)
 
-    bld(features="cxx cxxprogram",
-        target="log",
-        source=bld.path.ant_glob(["log_*.cpp"]),
-        use='ndn-cxx BOOST',
-        includes='..',
-        install_path=None)
+    if bld.env['ENABLE_LOGGING']:
+        bld(features="cxx cxxprogram",
+            target="log",
+            source=bld.path.ant_glob(["log_*.cpp"]),
+            use='ndn-cxx BOOST',
+            includes='..',
+            install_path=None)
