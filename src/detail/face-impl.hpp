@@ -32,6 +32,8 @@
 #include "../util/scheduler.hpp"
 #include "../util/config-file.hpp"
 #include "../util/signal.hpp"
+#include "../util/logger.hpp"
+#include "../util/regex/regex-pattern-list-matcher.hpp"
 
 #include "../transport/transport.hpp"
 #include "../transport/unix-transport.hpp"
@@ -79,6 +81,7 @@ public:
     for (auto entry = m_pendingInterestTable.begin(); entry != m_pendingInterestTable.end(); ) {
       if ((*entry)->getInterest()->matchesData(data)) {
         shared_ptr<PendingInterest> matchedEntry = *entry;
+        NDN_CXX_LOG_DEBUG("   satisfying " << *matchedEntry->getInterest());
 
         entry = m_pendingInterestTable.erase(entry);
 
@@ -96,6 +99,7 @@ public:
       const Interest& pendingInterest = *(*entry)->getInterest();
       if (pendingInterest == nack.getInterest()) {
         shared_ptr<PendingInterest> matchedEntry = *entry;
+        NDN_CXX_LOG_DEBUG("   nacking " << *matchedEntry->getInterest());
 
         entry = m_pendingInterestTable.erase(entry);
 
@@ -112,6 +116,10 @@ public:
   {
     for (const auto& filter : m_interestFilterTable) {
       if (filter->doesMatch(interest.getName())) {
+        const InterestFilter& ifilter = filter->getFilter();
+        NDN_CXX_LOG_DEBUG("   matching " << ifilter.getPrefix() << " " <<
+                          (ifilter.hasRegexFilter() ? ifilter.getRegexFilter().getExpr() : std::string()));
+
         filter->invokeInterestCallback(interest);
       }
     }
@@ -157,6 +165,7 @@ public:
     packet.add<lp::FragmentField>(std::make_pair(interest->wireEncode().begin(),
                                                  interest->wireEncode().end()));
 
+    NDN_CXX_LOG_DEBUG("<I " << *interest);
     m_face.m_transport->send(packet.wireEncode());
   }
 
@@ -187,6 +196,7 @@ public:
     packet.add<lp::FragmentField>(std::make_pair(data->wireEncode().begin(),
                                                  data->wireEncode().end()));
 
+    NDN_CXX_LOG_DEBUG("<D " << data->getName());
     m_face.m_transport->send(packet.wireEncode());
   }
 
@@ -201,6 +211,7 @@ public:
     Block interest = nack->getInterest().wireEncode();
     packet.add<lp::FragmentField>(std::make_pair(interest.begin(), interest.end()));
 
+    NDN_CXX_LOG_DEBUG("<N " << nack->getInterest() << "~" << nack->getHeader().getReason());
     m_face.m_transport->send(packet.wireEncode());
   }
 

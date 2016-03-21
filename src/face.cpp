@@ -25,11 +25,14 @@
 #include "encoding/tlv.hpp"
 #include "security/key-chain.hpp"
 #include "security/signing-helpers.hpp"
+#include "util/logger.hpp"
 #include "util/time.hpp"
 #include "util/random.hpp"
 #include "util/face-uri.hpp"
 
 namespace ndn {
+
+NDN_CXX_LOG_INIT(Face);
 
 Face::Face()
   : m_internalIoService(new boost::asio::io_service())
@@ -205,8 +208,7 @@ Face::put(const Data& data)
     dataPtr = data.shared_from_this();
   }
   catch (const bad_weak_ptr& e) {
-    std::cerr << "Face::put WARNING: the supplied Data should be created using make_shared<Data>()"
-              << std::endl;
+    NDN_CXX_LOG_WARN("Face::put(const Data&) would be more efficient if Data is created with make_shared");
     dataPtr = make_shared<Data>(data);
   }
 
@@ -501,10 +503,12 @@ Face::onReceiveElement(const Block& blockFromDaemon)
         auto nack = make_shared<lp::Nack>(std::move(*interest));
         nack->setHeader(lpPacket.get<lp::NackField>());
         extractLpLocalFields(*nack, lpPacket);
+        NDN_CXX_LOG_DEBUG(">N " << nack->getInterest() << "~" << nack->getHeader().getReason());
         m_impl->nackPendingInterests(*nack);
       }
       else {
         extractLpLocalFields(*interest, lpPacket);
+        NDN_CXX_LOG_DEBUG(">I " << *interest);
         m_impl->processInterestFilters(*interest);
       }
       break;
@@ -512,6 +516,7 @@ Face::onReceiveElement(const Block& blockFromDaemon)
     case tlv::Data: {
       shared_ptr<Data> data = make_shared<Data>(netPacket);
       extractLpLocalFields(*data, lpPacket);
+      NDN_CXX_LOG_DEBUG(">D " << data->getName());
       m_impl->satisfyPendingInterests(*data);
       break;
     }
