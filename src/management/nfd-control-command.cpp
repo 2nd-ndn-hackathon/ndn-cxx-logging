@@ -53,6 +53,18 @@ ControlCommand::applyDefaultsToResponse(ControlParameters& parameters) const
 {
 }
 
+void
+ControlCommand::printRequestParameters(std::ostream& os, const ControlParameters& parameters) const
+{
+  os << parameters;
+}
+
+void
+ControlCommand::printResponseParameters(std::ostream& os, const ControlParameters& parameters) const
+{
+  os << parameters;
+}
+
 Name
 ControlCommand::getRequestName(const Name& commandPrefix,
                                const ControlParameters& parameters) const
@@ -121,6 +133,18 @@ FaceCreateCommand::validateResponse(const ControlParameters& parameters) const
   }
 }
 
+void
+FaceCreateCommand::printRequestParameters(std::ostream& os, const ControlParameters& parameters) const
+{
+  os << parameters.getUri() << ',' << parameters.getFacePersistency();
+}
+
+void
+FaceCreateCommand::printResponseParameters(std::ostream& os, const ControlParameters& parameters) const
+{
+  os << parameters.getFaceId() << ',' << parameters.getUri();
+}
+
 FaceDestroyCommand::FaceDestroyCommand()
   : ControlCommand("faces", "destroy")
 {
@@ -143,6 +167,18 @@ void
 FaceDestroyCommand::validateResponse(const ControlParameters& parameters) const
 {
   this->validateRequest(parameters);
+}
+
+void
+FaceDestroyCommand::printRequestParameters(std::ostream& os, const ControlParameters& parameters) const
+{
+  os << parameters.getFaceId();
+}
+
+void
+FaceDestroyCommand::printResponseParameters(std::ostream& os, const ControlParameters& parameters) const
+{
+  this->printRequestParameters(os, parameters);
 }
 
 FaceLocalControlCommand::FaceLocalControlCommand(const std::string& verb)

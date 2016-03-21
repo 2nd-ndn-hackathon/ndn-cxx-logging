@@ -81,6 +81,18 @@ public:
     return m_verb.toUri();
   }
 
+  /** \brief print request fields in \p parameters to \p os
+   *  \pre \p validateRequest(parameters) does not throw, and defaults have been applied
+   */
+  virtual void
+  printRequestParameters(std::ostream& os, const ControlParameters& parameters) const;
+
+  /** \brief print response fields in \p parameters to \p os
+   *  \pre \p validateResponse(parameters) does not throw, and defaults have been applied
+   */
+  virtual void
+  printResponseParameters(std::ostream& os, const ControlParameters& parameters) const;
+
   /** \brief construct the Name for a request Interest
    *  \throw ArgumentError if parameters are invalid
    */
@@ -158,6 +170,12 @@ public:
 
   virtual void
   validateResponse(const ControlParameters& parameters) const;
+
+  virtual void
+  printRequestParameters(std::ostream& os, const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
+
+  virtual void
+  printResponseParameters(std::ostream& os, const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 };
 
 
@@ -176,6 +194,12 @@ public:
 
   virtual void
   validateResponse(const ControlParameters& parameters) const;
+
+  virtual void
+  printRequestParameters(std::ostream& os, const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
+
+  virtual void
+  printResponseParameters(std::ostream& os, const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 };
 
 /**

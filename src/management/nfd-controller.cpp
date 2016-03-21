@@ -33,6 +33,32 @@ const uint32_t Controller::ERROR_NACK = 10800; // 10000 + TLV-TYPE of Nack heade
 const uint32_t Controller::ERROR_SERVER = 500;
 const uint32_t Controller::ERROR_LBOUND = 400;
 
+struct PrintRequestParameters
+{
+  shared_ptr<ControlCommand> command;
+  const ControlParameters& parameters;
+};
+
+std::ostream&
+operator<<(std::ostream& os, const PrintRequestParameters& rp)
+{
+  rp.command->printRequestParameters(os, rp.parameters);
+  return os;
+}
+
+struct PrintResponseParameters
+{
+  shared_ptr<ControlCommand> command;
+  const ControlParameters& parameters;
+};
+
+std::ostream&
+operator<<(std::ostream& os, const PrintResponseParameters& rp)
+{
+  rp.command->printResponseParameters(os, rp.parameters);
+  return os;
+}
+
 Controller::Controller(Face& face, KeyChain& keyChain)
   : m_face(face)
   , m_keyChain(keyChain)
@@ -51,8 +77,10 @@ Controller::startCommand(const shared_ptr<ControlCommand>& command,
   interest.setInterestLifetime(options.getTimeout());
   m_keyChain.sign(interest, options.getSigningInfo());
 
-  NDN_CXX_LOG_DEBUG("< request " << command->getModule() << "/" << command->getVerb() << " " <<
-                    parameters << " prefix=" << options.getPrefix() <<
+  NDN_CXX_LOG_DEBUG("< request " <<
+                    command->getModule() << "/" << command->getVerb() << "(" <<
+                    (PrintRequestParameters{command, parameters}) <<
+                    ") prefix=" << options.getPrefix() <<
                     " signed-by=" << options.getSigningInfo());
 
   m_face.expressInterest(interest,
@@ -60,14 +88,16 @@ Controller::startCommand(const shared_ptr<ControlCommand>& command,
                               command, parameters, onSuccess, onFailure, options),
                          [=] (const Interest&, const lp::Nack& nack) {
                            NDN_CXX_LOG_WARN("> nack~" << nack.getHeader().getReason() << " " <<
-                                             command->getModule() << "/" << command->getVerb() << " " <<
-                                             parameters << " prefix=" << options.getPrefix());
+                                             command->getModule() << "/" << command->getVerb() << "(" <<
+                                             (PrintRequestParameters{command, parameters}) <<
+                                             ") prefix=" << options.getPrefix());
                            onFailure(ERROR_NACK, "network Nack received");
                          },
                          [=] (const Interest&) {
                            NDN_CXX_LOG_WARN("> timeout " <<
-                                             command->getModule() << "/" << command->getVerb() << " " <<
-                                             parameters << " prefix=" << options.getPrefix());
+                                             command->getModule() << "/" << command->getVerb() << "(" <<
+                                             (PrintRequestParameters{command, parameters}) <<
+                                             ") prefix=" << options.getPrefix());
                            onFailure(ERROR_TIMEOUT, "request timed out");
                          });
 }
@@ -88,8 +118,9 @@ Controller::processCommandResponse(const Data& data,
   }
   catch (tlv::Error& e) {
     NDN_CXX_LOG_WARN("> response-unparsable " <<
-                      command->getModule() << "/" << command->getVerb() << " " <<
-                      requestParameters << " prefix=" << options.getPrefix());
+                      command->getModule() << "/" << command->getVerb() << "(" <<
+                      (PrintRequestParameters{command, requestParameters}) <<
+                      ") prefix=" << options.getPrefix());
     if (static_cast<bool>(onFailure))
       onFailure(ERROR_SERVER, e.what());
     return;
@@ -97,11 +128,11 @@ Controller::processCommandResponse(const Data& data,
 
   uint32_t code = response.getCode();
 
-  NDN_CXX_LOG_DEBUG("> response~" << code << "~'" << response.getText() << "' " <<
-                    command->getModule() << "/" << command->getVerb() << " " <<
-                    requestParameters << " prefix=" << options.getPrefix());
-
   if (code >= ERROR_LBOUND) {
+    NDN_CXX_LOG_DEBUG("> response~" << code << "~'" << response.getText() << "' " <<
+                      command->getModule() << "/" << command->getVerb() << "(" <<
+                      (PrintRequestParameters{command, requestParameters}) <<
+                      ") prefix=" << options.getPrefix());
     if (static_cast<bool>(onFailure))
       onFailure(code, response.getText());
     return;
@@ -110,12 +141,12 @@ Controller::processCommandResponse(const Data& data,
   ControlParameters parameters;
   try {
     parameters.wireDecode(response.getBody());
-    NDN_CXX_LOG_DEBUG("  body=" << parameters);
   }
   catch (tlv::Error& e) {
-    NDN_CXX_LOG_WARN("> response-body-unparsable " <<
-                      command->getModule() << "/" << command->getVerb() << " " <<
-                      requestParameters << " prefix=" << options.getPrefix());
+    NDN_CXX_LOG_WARN("> response-body-unparsable~" << code << "~'" << response.getText() << "' " <<
+                      command->getModule() << "/" << command->getVerb() << "(" <<
+                      (PrintRequestParameters{command, requestParameters}) <<
+                      ") prefix=" << options.getPrefix());
     if (static_cast<bool>(onFailure))
       onFailure(ERROR_SERVER, e.what());
     return;
@@ -125,14 +156,22 @@ Controller::processCommandResponse(const Data& data,
     command->validateResponse(parameters);
   }
   catch (ControlCommand::ArgumentError& e) {
-    NDN_CXX_LOG_WARN("> response-body-invalid " <<
-                      command->getModule() << "/" << command->getVerb() << " " <<
-                      requestParameters << " prefix=" << options.getPrefix());
+    NDN_CXX_LOG_WARN("> response-body-invalid~" << code << "~'" << response.getText() << "' " <<
+                      command->getModule() << "/" << command->getVerb() << "(" <<
+                      (PrintRequestParameters{command, requestParameters}) <<
+                      ") prefix=" << options.getPrefix() <<
+                      " body=" << parameters);
     if (static_cast<bool>(onFailure))
       onFailure(ERROR_SERVER, e.what());
     return;
   }
 
+  command->applyDefaultsToResponse(parameters);
+  NDN_CXX_LOG_DEBUG("> response~" << code << "~'" << response.getText() << "' " <<
+                    command->getModule() << "/" << command->getVerb() << "(" <<
+                    (PrintRequestParameters{command, requestParameters}) <<
+                    ") prefix=" << options.getPrefix() <<
+                    " body=(" << (PrintResponseParameters{command, parameters}) << ")");
   if (static_cast<bool>(onSuccess))
     onSuccess(parameters);
 }
