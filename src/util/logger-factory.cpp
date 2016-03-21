@@ -70,7 +70,24 @@ LoggerFactory::get()
 LogLevel
 LoggerFactory::parseLevel(const std::string& levelStr)
 {
-  return LogLevel::NONE;
+  if (levelStr == "FATAL")
+    return LogLevel::FATAL;
+  else if (levelStr == "NONE")
+    return LogLevel::NONE;
+  else if (levelStr == "ERROR")
+    return LogLevel::ERROR;
+  else if (levelStr == "WARN")
+    return LogLevel::WARN;
+  else if (levelStr == "INFO")
+    return LogLevel::INFO;
+  else if (levelStr == "DEBUG")
+    return LogLevel::DEBUG;
+  else if (levelStr == "TRACE")
+    return LogLevel::TRACE;
+  else if (levelStr == "ALL")
+    return LogLevel::ALL;
+
+  BOOST_THROW_EXCEPTION(Error("wrong log level string"));
 }
 
 } // namespace util
