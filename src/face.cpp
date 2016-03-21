@@ -25,14 +25,11 @@
 #include "encoding/tlv.hpp"
 #include "security/key-chain.hpp"
 #include "security/signing-helpers.hpp"
-#include "util/logger.hpp"
 #include "util/time.hpp"
 #include "util/random.hpp"
 #include "util/face-uri.hpp"
 
 namespace ndn {
-
-NDN_CXX_LOG_INIT(Face);
 
 Face::Face()
   : m_internalIoService(new boost::asio::io_service())

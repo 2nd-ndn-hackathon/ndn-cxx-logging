@@ -47,6 +47,8 @@
 
 namespace ndn {
 
+NDN_CXX_LOG_INIT(Face);
+
 class Face::Impl : noncopyable
 {
 public:

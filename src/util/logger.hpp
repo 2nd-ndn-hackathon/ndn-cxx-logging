@@ -104,14 +104,11 @@ struct LoggerTimestamp
 std::ostream&
 operator<<(std::ostream& os, const boost::posix_time::ptime& timestamp);
 
-static
-::boost::log::sources::channel_logger_mt< > g_channelLogger;
-
 BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
 
-#define NDN_CXX_LOG(level, msg, expression)                                 \
-  do {                                                                      \
-    BOOST_LOG(::ndn::util::g_channelLogger) << " "#msg": " << expression;   \
+#define NDN_CXX_LOG(lvl, lvlstr, expression) \
+  do { \
+    BOOST_LOG(NdnCxxLogger::get()) << " " BOOST_STRINGIZE(lvlstr) ": " << expression; \
   } while (false)
 
 Logger
