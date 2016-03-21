@@ -22,7 +22,7 @@
 #ifndef NDN_UTIL_LOGGER_FACTORY_HPP
 #define NDN_UTIL_LOGGER_FACTORY_HPP
 
-#include "common.hpp"
+#include "../common.hpp"
 #include "logger.hpp"
 
 #include <mutex>
