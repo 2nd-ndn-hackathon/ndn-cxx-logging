@@ -34,6 +34,18 @@ LoggerFactory::addLogger(const std::string& moduleName, const Logger& logger)
 void
 LoggerFactory::setSeverityLevels(const std::string& config)
 {
+  std::stringstream ss(config);
+  std::string configModule;
+  while (std::getline(ss, configModule, ':')) {
+    size_t ind = configModule.find('=');
+    if (ind == std::string::npos)
+      BOOST_THROW_EXCEPTION(Error("wrong log configuration"));
+
+    std::string moduleName = configModule.substr(0, ind);
+    LogLevel level = parseLevel(configModule.substr(ind+1));
+
+    setSeverityLevel(moduleName, level);
+  }
 }
 
 void

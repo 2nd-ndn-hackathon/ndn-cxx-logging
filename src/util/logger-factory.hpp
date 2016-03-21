@@ -47,7 +47,7 @@ public:
   static void
   addLogger(const std::string& moduleName, const Logger& logger);
 
-  /** @example *=INFO:Face=DEBUG:Controller=WARN
+  /** @example *=INFO:Face=DEBUG:NfdController=WARN
    */
   static void
   setSeverityLevels(const std::string& config);
