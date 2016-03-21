@@ -166,10 +166,10 @@ public:
   FaceCreateCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const;
+  applyDefaultsToRequest(ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 
   virtual void
   printRequestParameters(std::ostream& os, const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
@@ -190,10 +190,10 @@ public:
   FaceDestroyCommand();
 
   virtual void
-  validateRequest(const ControlParameters& parameters) const;
+  validateRequest(const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 
   virtual void
   printRequestParameters(std::ostream& os, const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
@@ -210,10 +210,10 @@ class FaceLocalControlCommand : public ControlCommand
 {
 public:
   virtual void
-  validateRequest(const ControlParameters& parameters) const;
+  validateRequest(const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 
 protected:
   explicit
@@ -274,10 +274,10 @@ public:
   FibRemoveNextHopCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const;
+  applyDefaultsToRequest(ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 };
 
 
@@ -304,10 +304,10 @@ public:
   StrategyChoiceUnsetCommand();
 
   virtual void
-  validateRequest(const ControlParameters& parameters) const;
+  validateRequest(const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 };
 
 
@@ -322,10 +322,10 @@ public:
   RibRegisterCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const;
+  applyDefaultsToRequest(ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 };
 
 
@@ -340,10 +340,10 @@ public:
   RibUnregisterCommand();
 
   virtual void
-  applyDefaultsToRequest(ControlParameters& parameters) const;
+  applyDefaultsToRequest(ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 
   virtual void
-  validateResponse(const ControlParameters& parameters) const;
+  validateResponse(const ControlParameters& parameters) const NDN_CXX_DECL_OVERRIDE;
 };
 
 } // namespace nfd
