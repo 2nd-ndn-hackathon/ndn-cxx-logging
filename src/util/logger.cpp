@@ -41,7 +41,7 @@ makeLogger(const std::string& name)
 {
   Logger logger(name);
   LoggerFactory::addLogger(name, logger);
-  return logger;
+  return std::move(logger);
 }
 
 std::ostream&

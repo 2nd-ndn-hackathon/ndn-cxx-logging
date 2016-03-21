@@ -24,20 +24,11 @@
 
 #include "common.hpp"
 
-#include <boost/log/expressions.hpp>
-#include <boost/log/expressions/keyword.hpp>
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/sources/basic_logger.hpp>
-#include <boost/log/sources/channel_feature.hpp>
-#include <boost/log/sources/channel_logger.hpp>
-#include <boost/log/support/date_time.hpp>
-
 #ifdef NDN_CXX_ENABLE_LOGGING
 
+#include <boost/log/common.hpp>
 #include <boost/log/sources/channel_logger.hpp>
 #include <boost/log/sources/global_logger_storage.hpp>
-#include <iostream>
 
 namespace ndn {
 namespace util {
@@ -61,12 +52,6 @@ public:
   explicit
   Logger(const std::string& name);
 
-  std::string
-  getName() const
-  {
-    return "foo";
-  }
-
   LogLevel
   getLevel() const
   {
@@ -83,12 +68,18 @@ private:
   LogLevel m_currentLogLevel;
 };
 
-inline std::ostream&
-operator<<(std::ostream& output, const Logger& logger)
-{
-  output << logger.getName();
-  return output;
-}
+Logger
+makeLogger(const std::string& name);
+
+/** \brief declare a log module
+ */
+#define NDN_CXX_LOG_INIT(name) \
+  namespace { BOOST_LOG_GLOBAL_LOGGER(NdnCxxLogger, ::ndn::util::Logger) } \
+  inline BOOST_LOG_GLOBAL_LOGGER_INIT(NdnCxxLogger, ::ndn::util::Logger) \
+  { \
+    return ::ndn::util::makeLogger(BOOST_STRINGIZE(name)); \
+  } \
+  struct ndn_cxx__allow_trailing_semicolon
 
 /** \brief a tag that writes a timestamp upon stream output
  *  \example std::clog << LoggerTimestamp()
@@ -103,25 +94,10 @@ struct LoggerTimestamp
 std::ostream&
 operator<<(std::ostream& os, const LoggerTimestamp&);
 
-BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
-
 #define NDN_CXX_LOG(lvl, lvlstr, expression) \
   do { \
     BOOST_LOG(NdnCxxLogger::get()) << "" << ::ndn::util::LoggerTimestamp() <<  " " BOOST_STRINGIZE(lvlstr) ": " << expression; \
   } while (false)
-
-Logger
-makeLogger(const std::string& name);
-
-/** \brief declare a log module
- */
-#define NDN_CXX_LOG_INIT(name) \
-  namespace { BOOST_LOG_GLOBAL_LOGGER(NdnCxxLogger, ::ndn::util::Logger) } \
-  inline BOOST_LOG_GLOBAL_LOGGER_INIT(NdnCxxLogger, ::ndn::util::Logger) \
-  { \
-    return ::ndn::util::makeLogger(BOOST_STRINGIZE(name)); \
-  } \
-  struct ndn_cxx__allow_trailing_semicolon
 
 /** \brief log at TRACE level
  *  \pre A log module must be declared in the same translation unit.
