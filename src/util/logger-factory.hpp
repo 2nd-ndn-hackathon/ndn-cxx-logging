@@ -25,15 +25,11 @@
 #include "common.hpp"
 #include "logger.hpp"
 
-#include <boost/log/sources/channel_logger.hpp>
-
-#include <map>
 #include <mutex>
+#include <unordered_map>
 
 namespace ndn {
 namespace util {
-
-typedef boost::log::sources::channel_logger_mt<> LogSource;
 
 class LoggerFactory : noncopyable
 {
@@ -49,7 +45,7 @@ public:
   };
 
   static void
-  addLogger(const std::string& moduleName, const LogSource& logger);
+  addLogger(const std::string& moduleName, const Logger& logger);
 
   /** @example *=INFO:Face=DEBUG:Controller=WARN
    */
@@ -71,8 +67,8 @@ private:
 
 private:
   std::mutex m_mutex;
-  std::map<std::string, LogLevel> m_enabledLevel;
-  std::map<std::string, LogSource> m_loggers;
+  std::unordered_map<std::string, LogLevel> m_enabledLevel;
+  std::unordered_multimap<std::string, Logger> m_loggers;
 };
 
 } // namespace util

@@ -34,10 +34,14 @@
 #include <boost/log/sources/channel_logger.hpp>
 #include <boost/log/support/date_time.hpp>
 
+#ifdef NDN_CXX_ENABLE_LOGGING
+
+#include <boost/log/sources/channel_logger.hpp>
+#include <boost/log/sources/global_logger_storage.hpp>
+#include <iostream>
+
 namespace ndn {
 namespace util {
-
-#ifdef NDN_CXX_ENABLE_LOGGING
 
 /** \brief indicates the severity level of a log message
  */
@@ -52,32 +56,32 @@ enum class LogLevel {
   ALL     = 255   ///< all messages
 };
 
-class Logger
+class Logger : public boost::log::sources::channel_logger_mt<>
 {
 public:
-  Logger(const std::string& name, LogLevel level);
+  explicit
+  Logger(const std::string& name);
 
-  const std::string&
+  std::string
   getName() const
   {
-    return m_moduleName;
+    return "foo";
+  }
+
+  LogLevel
+  getLevel() const
+  {
+    return m_currentLogLevel;
   }
 
   void
-  setName(const std::string& name)
+  setLevel(LogLevel level)
   {
-    m_moduleName = name;
-  }
-
-  void
-  setLogLevel(LogLevel level)
-  {
-    m_enabledLogLevel = level;
+    m_currentLogLevel = level;
   }
 
 private:
-  LogLevel m_enabledLogLevel;
-  std::string m_moduleName;
+  LogLevel m_currentLogLevel;
 };
 
 inline std::ostream&
@@ -110,9 +114,18 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
     BOOST_LOG(::ndn::util::g_channelLogger) << " "#msg": " << expression;   \
   } while (false)
 
+Logger
+makeLogger(const std::string& name);
+
 /** \brief declare a log module
  */
-#define NDN_CXX_LOG_INIT(name) class Logger_##name {}
+#define NDN_CXX_LOG_INIT(name) \
+  namespace { BOOST_LOG_GLOBAL_LOGGER(NdnCxxLogger, ::ndn::util::Logger) } \
+  inline BOOST_LOG_GLOBAL_LOGGER_INIT(NdnCxxLogger, ::ndn::util::Logger) \
+  { \
+    return ::ndn::util::makeLogger(BOOST_STRINGIZE(name)); \
+  } \
+  struct ndn_cxx__allow_trailing_semicolon
 
 /** \brief log at TRACE level
  *  \pre A log module must be declared in the same translation unit.
@@ -144,6 +157,9 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
  */
 #define NDN_CXX_LOG_FATAL(expression) NDN_CXX_LOG(FATAL, FATAL, expression)
 
+} // namespace util
+} // namespace ndn
+
 #else // NDN_CXX_ENABLE_LOGGING
 
 #define NDN_CXX_LOG_INIT(name)
@@ -156,8 +172,5 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(timestamp, "TimeStamp", boost::posix_time::ptime)
 #define NDN_CXX_LOG_FATAL(expression) do { } while (false)
 
 #endif // NDN_CXX_ENABLE_LOGGING
-
-} // namespace util
-} // namespace ndn
 
 #endif // NDN_UTIL_LOGGER_HPP

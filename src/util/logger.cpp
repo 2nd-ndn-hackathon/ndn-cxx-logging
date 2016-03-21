@@ -20,7 +20,9 @@
  */
 
 #include "logger.hpp"
+#include "logger-factory.hpp"
 #include "time.hpp"
+
 #include <cinttypes>
 #include <stdio.h>
 #include <type_traits>
@@ -28,10 +30,18 @@
 namespace ndn {
 namespace util {
 
-Logger::Logger(const std::string& name, LogLevel level)
-  : m_enabledLogLevel(level)
-  , m_moduleName(name)
+Logger::Logger(const std::string& name)
+  : boost::log::sources::channel_logger_mt<>(name)
+  , m_currentLogLevel(LogLevel::NONE)
 {
+}
+
+Logger
+makeLogger(const std::string& name)
+{
+  Logger logger(name);
+  LoggerFactory::addLogger(name, logger);
+  return logger;
 }
 
 std::ostream&

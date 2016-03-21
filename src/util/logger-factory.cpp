@@ -25,10 +25,10 @@ namespace ndn {
 namespace util {
 
 void
-LoggerFactory::addLogger(const std::string& moduleName, const LogSource& logger)
+LoggerFactory::addLogger(const std::string& moduleName, const Logger& logger)
 {
   std::lock_guard<std::mutex> lock(get().m_mutex);
-  get().m_loggers[moduleName] = logger;
+  get().m_loggers.insert({moduleName, logger});
 }
 
 void
