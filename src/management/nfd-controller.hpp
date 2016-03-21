@@ -79,8 +79,10 @@ private:
   void
   processCommandResponse(const Data& data,
                          const shared_ptr<ControlCommand>& command,
+                         const ControlParameters& requestParameters,
                          const CommandSucceedCallback& onSuccess,
-                         const CommandFailCallback& onFailure);
+                         const CommandFailCallback& onFailure,
+                         const CommandOptions& options);
 
 public:
   /** \brief error code for timeout

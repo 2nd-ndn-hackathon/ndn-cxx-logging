@@ -69,6 +69,18 @@ public:
   virtual void
   applyDefaultsToResponse(ControlParameters& parameters) const;
 
+  std::string
+  getModule() const
+  {
+    return m_module.toUri();
+  }
+
+  std::string
+  getVerb() const
+  {
+    return m_verb.toUri();
+  }
+
   /** \brief construct the Name for a request Interest
    *  \throw ArgumentError if parameters are invalid
    */
