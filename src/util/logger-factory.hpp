@@ -24,11 +24,11 @@
 
 #include "common.hpp"
 #include "logger.hpp"
+
 #include <boost/log/sources/channel_logger.hpp>
+
 #include <map>
 #include <mutex>
-
-enum class LogLevel { NONE };
 
 namespace ndn {
 namespace util {
@@ -36,7 +36,6 @@ namespace util {
 class LoggerFactory : noncopyable
 {
 public:
-
   class Error : public std::runtime_error
   {
   public:
@@ -48,7 +47,8 @@ public:
   };
 
   static void
-  addLogger(const std::string& moduleName, boost::shared_ptr<boost::log::sources::channel_logger_mt<>>& loggerPtr);
+  addLogger(const std::string& moduleName,
+            const boost::log::sources::channel_logger_mt<>& logger);
 
   /** @example *=INFO:Face=DEBUG:Controller=WARN
    */
@@ -56,28 +56,22 @@ public:
   setSeverityLevels(const std::string& config);
 
   static void
-  setSeverityLevel(const std::string& moduleName, const std::string& level);
+  setSeverityLevel(const std::string& moduleName, LogLevel level);
 
   static void
   setDestination(std::ostream& os);
 
 private:
-  LoggerFactory();
-
   static LoggerFactory&
   get();
 
-  LogLevel
-  parseLevel(const std::string& level);
+  static LogLevel
+  parseLevel(const std::string& levelStr);
 
 private:
-  typedef std::map<std::string, LogLevel> LevelMap;
-  LevelMap m_enabledLevel;
-
-  typedef std::map<std::string, boost::log::sources::channel_logger_mt<>> LoggerMap;
-  LoggerMap m_loggers;
-
-  std::mutex m_lock;
+  std::mutex m_mutex;
+  std::map<std::string, LogLevel> m_enabledLevel;
+  std::map<std::string, boost::log::sources::channel_logger_mt<>> m_loggers;
 };
 
 } // namespace util

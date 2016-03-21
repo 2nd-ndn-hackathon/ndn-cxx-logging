@@ -19,11 +19,48 @@
  * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
  */
 
-//#include "logger-factory.hpp"
+#include "logger-factory.hpp"
 
 namespace ndn {
 namespace util {
 
-} // namespace util
+void
+LoggerFactory::addLogger(const std::string& moduleName,
+                         const boost::log::sources::channel_logger_mt<>& logger)
+{
+  std::lock_guard<std::mutex> lock(get().m_mutex);
+  get().m_loggers[moduleName] = logger;
+}
 
+void
+LoggerFactory::setSeverityLevels(const std::string& config)
+{
+}
+
+void
+LoggerFactory::setSeverityLevel(const std::string& moduleName, LogLevel level)
+{
+}
+
+void
+LoggerFactory::setDestination(std::ostream& os)
+{
+}
+
+LoggerFactory&
+LoggerFactory::get()
+{
+  // Initialization of block-scope variables with static storage duration is thread-safe.
+  // See ISO C++ standard [stmt.dcl]/4
+  static LoggerFactory globalLoggerFactory;
+  return globalLoggerFactory;
+}
+
+LogLevel
+LoggerFactory::parseLevel(const std::string& levelStr)
+{
+  return LogLevel::NONE;
+}
+
+} // namespace util
 } // namespace ndn

@@ -32,17 +32,18 @@ namespace util {
 /** \brief indicates a log level
  */
 enum class LogLevel {
-  LOG_FATAL          = -1, // fatal (will be logged unconditionally)
-  LOG_NONE           = 0, // no messages
-  LOG_ERROR          = 1, // serious error messages
-  LOG_WARN           = 2, // warning messages
-  LOG_INFO           = 3, // informational messages
-  LOG_DEBUG          = 4, // debug messages
-  LOG_TRACE          = 5, // trace messages (most verbose)
-  LOG_ALL            = 255 // all messages
+  FATAL   = -1, ///< fatal (will be logged unconditionally)
+  NONE    = 0,  ///< no messages
+  ERROR   = 1,  ///< serious error messages
+  WARN    = 2,  ///< warning messages
+  INFO    = 3,  ///< informational messages
+  DEBUG   = 4,  ///< debug messages
+  TRACE   = 5,  ///< trace messages (most verbose)
+  ALL     = 255 ///< all messages
 };
 
-class Logger {
+class Logger
+{
 public:
   Logger(const std::string& name, LogLevel level);
 
