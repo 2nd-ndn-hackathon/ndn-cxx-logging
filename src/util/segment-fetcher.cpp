@@ -28,6 +28,8 @@
 namespace ndn {
 namespace util {
 
+NDN_CXX_LOG_INIT(SegmentFetcher);
+
 const uint32_t SegmentFetcher::MAX_INTEREST_REEXPRESS = 3;
 
 SegmentFetcher::SegmentFetcher(Face& face,
@@ -62,6 +64,8 @@ SegmentFetcher::fetch(Face& face,
                       const CompleteCallback& completeCallback,
                       const ErrorCallback& errorCallback)
 {
+  NDN_CXX_LOG_TRACE(__func__);
+
   shared_ptr<SegmentFetcher> fetcher(new SegmentFetcher(face, validator, completeCallback,
                                                         errorCallback));
 
@@ -72,6 +76,8 @@ void
 SegmentFetcher::fetchFirstSegment(const Interest& baseInterest,
                                   shared_ptr<SegmentFetcher> self)
 {
+  NDN_CXX_LOG_TRACE(__func__);
+
   Interest interest(baseInterest);
   interest.setChildSelector(1);
   interest.setMustBeFresh(true);
@@ -87,6 +93,8 @@ SegmentFetcher::fetchNextSegment(const Interest& origInterest, const Name& dataN
                                  uint64_t segmentNo,
                                  shared_ptr<SegmentFetcher> self)
 {
+  NDN_CXX_LOG_TRACE(__func__);
+
   Interest interest(origInterest); // to preserve any selectors
   interest.refreshNonce();
   interest.setChildSelector(0);
@@ -103,6 +111,8 @@ SegmentFetcher::afterSegmentReceived(const Interest& origInterest,
                                      const Data& data, bool isSegmentZeroExpected,
                                      shared_ptr<SegmentFetcher> self)
 {
+  NDN_CXX_LOG_TRACE(__func__);
+
   m_validator->validate(data,
                         bind(&SegmentFetcher::afterValidationSuccess, this, _1,
                              isSegmentZeroExpected, origInterest, self),
@@ -116,10 +126,13 @@ SegmentFetcher::afterValidationSuccess(const shared_ptr<const Data> data,
                                        const Interest& origInterest,
                                        shared_ptr<SegmentFetcher> self)
 {
+  NDN_CXX_LOG_TRACE(__func__);
+
   name::Component currentSegment = data->getName().get(-1);
 
   if (currentSegment.isSegment()) {
     if (isSegmentZeroExpected && currentSegment.toSegment() != 0) {
+      NDN_CXX_LOG_DEBUG("Fetch segment 0");
       fetchNextSegment(origInterest, data->getName(), 0, self);
     }
     else {
@@ -128,14 +141,17 @@ SegmentFetcher::afterValidationSuccess(const shared_ptr<const Data> data,
 
       const name::Component& finalBlockId = data->getMetaInfo().getFinalBlockId();
       if (finalBlockId.empty() || (finalBlockId > currentSegment)) {
+        NDN_CXX_LOG_DEBUG("Fetch segment " << currentSegment.toSegment() + 1);
         fetchNextSegment(origInterest, data->getName(), currentSegment.toSegment() + 1, self);
       }
       else {
+        NDN_CXX_LOG_DEBUG("All segments fetched");
         return m_completeCallback(m_buffer->buf());
       }
     }
   }
   else {
+    NDN_CXX_LOG_WARN(data->getName() << " has no segment number.");
     m_errorCallback(DATA_HAS_NO_SEGMENT, "Data Name has no segment number.");
   }
 }
@@ -143,6 +159,7 @@ SegmentFetcher::afterValidationSuccess(const shared_ptr<const Data> data,
 void
 SegmentFetcher::afterValidationFailure(const shared_ptr<const Data> data)
 {
+  NDN_CXX_LOG_TRACE(__func__);
   return m_errorCallback(SEGMENT_VALIDATION_FAIL, "Segment validation fail");
 }
 
@@ -151,20 +168,26 @@ void
 SegmentFetcher::afterNackReceived(const Interest& origInterest, const lp::Nack& nack,
                                   uint32_t reExpressCount, shared_ptr<SegmentFetcher> self)
 {
+  NDN_CXX_LOG_TRACE(__func__);
+
   if (reExpressCount >= MAX_INTEREST_REEXPRESS) {
+    NDN_CXX_LOG_WARN("reExpressCount meets the limit.");
     m_errorCallback(NACK_ERROR, "Nack Error");
   }
   else {
     switch (nack.getReason()) {
       case lp::NackReason::DUPLICATE:
+        NDN_CXX_LOG_TRACE("Duplicate Nack");
         reExpressInterest(origInterest, reExpressCount, self);
         break;
       case lp::NackReason::CONGESTION:
+        NDN_CXX_LOG_TRACE("Congestion Nack");
         m_scheduler.scheduleEvent(time::milliseconds(static_cast<uint32_t>(pow(2, reExpressCount + 1))),
                                   bind(&SegmentFetcher::reExpressInterest, this,
                                        origInterest, reExpressCount, self));
         break;
       default:
+        NDN_CXX_LOG_WARN("Nack reason can not be recognized as DUPLICATE or CONGESTION.");
         m_errorCallback(NACK_ERROR, "Nack Error");
         break;
     }
@@ -175,6 +198,8 @@ void
 SegmentFetcher::reExpressInterest(Interest interest, uint32_t reExpressCount,
                                   shared_ptr<SegmentFetcher> self)
 {
+  NDN_CXX_LOG_TRACE(__func__);
+
   interest.refreshNonce();
   BOOST_ASSERT(interest.hasNonce());
 
