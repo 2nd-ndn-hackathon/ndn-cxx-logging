@@ -95,7 +95,7 @@ LoggerFactory::parseLevel(const std::string& levelStr)
   else if (levelStr == "ALL")
     return LogLevel::ALL;
 
-  BOOST_THROW_EXCEPTION(Error("wrong log level string"));
+  BOOST_THROW_EXCEPTION(Error("Unrecognized log level '" + levelStr + "'"));
 }
 
 } // namespace util
