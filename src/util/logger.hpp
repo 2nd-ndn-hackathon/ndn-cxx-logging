@@ -52,20 +52,20 @@ public:
   explicit
   Logger(const std::string& name);
 
-  LogLevel
-  getLevel() const
+  bool
+  isLevelEnabled(LogLevel level) const
   {
-    return m_currentLogLevel;
+    return m_currentLevel >= level;
   }
 
   void
   setLevel(LogLevel level)
   {
-    m_currentLogLevel = level;
+    m_currentLevel = level;
   }
 
 private:
-  LogLevel m_currentLogLevel;
+  LogLevel m_currentLevel; // TODO: not thread-safe
 };
 
 Logger
@@ -96,7 +96,11 @@ operator<<(std::ostream& os, const LoggerTimestamp&);
 
 #define NDN_CXX_LOG(lvl, lvlstr, expression) \
   do { \
-    BOOST_LOG(NdnCxxLogger::get()) << "" << ::ndn::util::LoggerTimestamp() <<  " " BOOST_STRINGIZE(lvlstr) ": " << expression; \
+    if (NdnCxxLogger::get().isLevelEnabled(::ndn::util::LogLevel::lvl)) { \
+      BOOST_LOG(NdnCxxLogger::get()) << "" << ::ndn::util::LoggerTimestamp{} \
+                                     << " " BOOST_STRINGIZE(lvlstr) ": " \
+                                     << expression; \
+    } \
   } while (false)
 
 /** \brief log at TRACE level

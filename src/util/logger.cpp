@@ -32,7 +32,7 @@ namespace util {
 
 Logger::Logger(const std::string& name)
   : boost::log::sources::channel_logger_mt<>(name)
-  , m_currentLogLevel(LogLevel::NONE)
+  , m_currentLevel(LogLevel::NONE)
 {
 }
 
