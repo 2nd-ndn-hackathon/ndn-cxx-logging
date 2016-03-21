@@ -20,6 +20,7 @@
  */
 
 #include "logger-factory.hpp"
+#include <boost/log/expressions.hpp>
 
 namespace ndn {
 namespace util {
