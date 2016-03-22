@@ -79,6 +79,8 @@ SegmentFetcher::fetchFirstSegment(const Interest& baseInterest,
   interest.setChildSelector(1);
   interest.setMustBeFresh(true);
 
+  NDN_CXX_LOG_INFO("fetch-begin " << baseInterest.getName());
+
   m_face.expressInterest(interest,
                          bind(&SegmentFetcher::afterSegmentReceived, this, _1, _2, true, self),
                          bind(&SegmentFetcher::afterNackReceived, this, _1, _2, 0, self),
@@ -123,20 +125,20 @@ SegmentFetcher::afterValidationSuccess(const shared_ptr<const Data> data,
 
   if (currentSegment.isSegment()) {
     if (isSegmentZeroExpected && currentSegment.toSegment() != 0) {
-      NDN_CXX_LOG_DEBUG("Fetch the first segment");
+      NDN_CXX_LOG_DEBUG("fetched-seg=" << currentSegment.toSegment() << " want-seg0");
       fetchNextSegment(origInterest, data->getName(), 0, self);
     }
     else {
       m_buffer->write(reinterpret_cast<const char*>(data->getContent().value()),
                       data->getContent().value_size());
+      NDN_CXX_LOG_TRACE("fetched-seg=" << currentSegment.toSegment());
 
       const name::Component& finalBlockId = data->getMetaInfo().getFinalBlockId();
       if (finalBlockId.empty() || (finalBlockId > currentSegment)) {
-        NDN_CXX_LOG_DEBUG("Fecth segment " << currentSegment.toSegment() + 1);
         fetchNextSegment(origInterest, data->getName(), currentSegment.toSegment() + 1, self);
       }
       else {
-        NDN_CXX_LOG_DEBUG("Fetched all segments");
+        NDN_CXX_LOG_INFO("complete");
         return m_completeCallback(m_buffer->buf());
       }
     }
