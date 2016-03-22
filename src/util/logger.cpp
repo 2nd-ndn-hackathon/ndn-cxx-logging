@@ -32,8 +32,8 @@ namespace util {
 
 Logger::Logger(const std::string& name)
   : m_moduleName(name)
-  , m_currentLevel(LogLevel::NONE)
 {
+  this->setLevel(LogLevel::NONE);
   LoggerFactory::addLogger(name, this);
 }
 

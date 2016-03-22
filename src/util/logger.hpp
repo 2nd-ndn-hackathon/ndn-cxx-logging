@@ -29,6 +29,8 @@
 #include <boost/log/common.hpp>
 #include <boost/log/sources/logger.hpp>
 
+#include <atomic>
+
 namespace ndn {
 namespace util {
 
@@ -60,18 +62,18 @@ public:
   bool
   isLevelEnabled(LogLevel level) const
   {
-    return m_currentLevel >= level;
+    return m_currentLevel.load(std::memory_order_relaxed) >= level;
   }
 
   void
   setLevel(LogLevel level)
   {
-    m_currentLevel = level;
+    m_currentLevel.store(level, std::memory_order_relaxed);
   }
 
 private:
   const std::string m_moduleName;
-  LogLevel m_currentLevel; // TODO: not thread-safe
+  std::atomic<LogLevel> m_currentLevel;
 };
 
 /** \brief declare a log module
