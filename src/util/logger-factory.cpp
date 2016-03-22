@@ -149,6 +149,9 @@ LoggerFactory::setDestinationImpl(std::ostream& os)
   backend->auto_flush(true);
   backend->add_stream(boost::shared_ptr<std::ostream>(&os, bind([]{})));
 
+  boost::log::core::get()->remove_sink(m_sink);
+  m_sink.reset();
+
   m_sink = boost::make_shared<Sink>(backend);
   m_sink->set_formatter(boost::log::expressions::stream << boost::log::expressions::message);
   boost::log::core::get()->add_sink(m_sink);
