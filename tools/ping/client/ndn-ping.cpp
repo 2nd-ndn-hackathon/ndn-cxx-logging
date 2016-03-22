@@ -27,6 +27,8 @@
 #include "statistics-collector.hpp"
 #include "tracer.hpp"
 
+#include <ndn-cxx/util/logger-factory.hpp>
+
 namespace ndn {
 namespace ping {
 namespace client {
@@ -147,6 +149,8 @@ usage(const boost::program_options::options_description& options)
 int
 main(int argc, char* argv[])
 {
+  ndn::util::LoggerFactory::setDestination(std::clog);
+
   Options options;
   options.shouldAllowStaleData = false;
   options.nPings = -1;
